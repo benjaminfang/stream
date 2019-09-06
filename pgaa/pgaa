@@ -1,0 +1,130 @@
+#! /usr/bin/env python3
+import os
+import sys
+import datetime
+from lib.check_env import check_env
+from lib.get_information import read_assembly_config_file, get_info_when_dir, hand_input_info
+from lib.genome_assembly import genome_assembly
+from lib.genome_annotation import genome_annotation
+
+
+
+
+#===============================================================================================
+#wellcome.
+print('\nHello, I am a program for genome assembly and annotion.\n')
+#===============================================================================================
+
+#===============================================================================================
+#check environment.
+init_time=datetime.datetime.now()
+init_time=init_time.timetuple()
+init_year,init_mounth,init_day,init_hour,init_min,init_sec=init_time[0:6]
+#created run log for this run and print basic information.
+if os.path.exists('./runlog'): os.remove('./runlog')
+runlog_file=open('runlog','a')
+print('The program is inited at: {0:04d}{1:02d}{2:02d}{3:02d}{4:02d}{5:02d}'.format(init_year,init_mounth,init_day,
+       init_hour,init_min,init_sec),file=runlog_file)
+command=sys.argv[0]
+current_working_dir=os.getcwd()
+result_dir=current_working_dir+'/result'
+if not os.path.exists(result_dir): os.mkdir(result_dir)
+
+print('The runing command is:',command,file=runlog_file)
+print('currend working directoty is:', current_working_dir,file=runlog_file)
+
+
+print('-'*50)
+print('Checking working envirenments, please wait...')
+
+check_env_res=check_env()
+
+    #check env:{assembly_utilization:[],raw_data_check_and_modification_untilization:[],
+    #           assembly_result_evaluate_utilization:[],genome_annotation_utilization:[]}
+print('\nChecking working envirenments.\nBelow is checking result:',file=runlog_file)
+print('done')
+print('Below is checking result:')
+for key in check_env_res:
+    print('    '+key,file=runlog_file)
+    print('    '+key)
+    for app in check_env_res[key]:
+        print('    {0:20}{1:20}{2:20}'.format(app[0],app[1],app[2]),file=runlog_file)
+        print('    {0:20}{1:20}{2:20}'.format(app[0],app[1],app[2]))
+
+print('-'*50)
+#===============================================================================================
+
+#===============================================================================================
+#Get information for genome assembly.
+print('-'*50)
+print('Geting assembly configure information...')
+if_file=input('Do you have a configure file to input all information this program needed?\n(inter "Y" for yes, and "N" for no, "Q" for quit)\n>')
+while True:
+    if if_file == 'Y' or if_file == 'N' or if_file=='Q':
+        break
+    else:
+        print("Sorry, I can't understand what you input, please input again.")
+        if_file=input('>')
+
+
+if if_file == 'Q':
+    quit()
+elif if_file == 'Y':
+    assembly_config_file=input('Please input the name of assmebly config file(inlude path)\n>')
+    assembly_info=read_assembly_config_file(assembly_config_file)
+elif if_file == 'N':
+    if_dir=input('Do you have a directory which contain or files used to assembly?\n(inter "Y" for yes, and "N" for no, "Q" for quit)\n>')
+    while True:
+        if if_dir == 'Y' or if_dir == 'N' or if_dir=='Q':
+            break
+        else:
+            print("Sorry, I can't understand what you input, please input again.")
+            if_dir=input('>')
+
+
+    if if_dir == 'Q':
+        quit()
+    elif if_dir == 'Y':
+        file_dir=input('Please input the path of the directory.\n>')
+        assembly_info=get_info_when_dir(file_dir)
+    elif if_dir == 'N':
+        print('Since now you mean you want to input all information by hand. If you have a lot of strain or lots of file need input, you would better use former method to input infor nation.')
+        assembly_info=hand_input_info()
+print(assembly_info.data)
+    #print assembly information into run log.
+#==========================================================================================
+
+
+
+#==========================================================================================
+#Genome assembly and choose best assembly.
+print('\n======Assembling======')
+best_assembly_dir=genome_assembly(assembly_info) 
+#
+print(best_assembly_dir)
+#==========================================================================================
+
+
+
+##==========================================================================================
+##Get information for genome annotation.
+
+##==========================================================================================
+
+
+
+##==========================================================================================
+##Genome annotation.
+print('\n======Annotating======')
+genome_annotation(best_assembly_dir,result_dir)
+#
+##==========================================================================================
+#
+#
+#
+#
+#
+
+
+
+print('All Done.')
